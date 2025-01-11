@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Detail</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Animal Detail</h1>
+    <div id="animal-info">
+        <!-- Animal details will be displayed here -->
+    </div>
+    <a href="index.html">Back to Animal List</a>
+
+    <script>
+        // Retrieve the query parameter from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const animal = urlParams.get('animal');
+
+        // Animal data
+        const animalDetails = {
+            lion: "The lion is a large cat species native to Africa and India.",
+            tiger: "The tiger is the largest cat species, native to Asia.",
+            elephant: "Elephants are the largest land animals, known for their intelligence.",
+            giraffe: "The giraffe is the tallest land animal, native to Africa."
+        };
+
+        // Display animal details
+        const animalInfoDiv = document.getElementById('animal-info');
+        if (animal && animalDetails[animal]) {
+            animalInfoDiv.innerHTML = `<h2>${animal.charAt(0).toUpperCase() + animal.slice(1)}</h2><p>${animalDetails[animal]}</p>`;
+        } else {
+            animalInfoDiv.innerHTML = `<p>Animal details not found.</p>`;
+        }
+    </script>
+</body>
+</html>
