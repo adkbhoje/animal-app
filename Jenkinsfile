@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/usr/local/bin:$PATH" 
+        PATH = "/usr/local/bin:$PATH"
         DOCKER_IMAGE = "adkbhoje/animal-tracker:latest"
         DOCKER_REGISTRY = "adkbhoje"
         IMAGE_NAME = "animal-tracker"
@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     git branch: 'main', url: 'https://github.com/adkbhoje/animal-app', credentialsId: 'github-token'
-                }    
+                }
             }
         }
 
@@ -56,12 +56,12 @@ pipeline {
                                 echo "Applying Terraform changes..."
                                 terraform -chdir=terraform apply -auto-approve
                                 '''
-                          }
-                     }
+                            }
+                        }
+                    }
                 }
-           }
-      }
- }
+            }
+        }
 
         stage('Fetch EC2 Instance IP') {
             steps {
