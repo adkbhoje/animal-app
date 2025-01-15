@@ -27,10 +27,12 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    sh '''
-                    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                    docker push ${DOCKER_IMAGE}
-                    '''
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh '''
+                        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                        docker push ${DOCKER_IMAGE}
+                        '''
+                    }
                 }
             }
         }
@@ -38,10 +40,12 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 script {
-                    sh '''
-                    terraform -chdir=terraform init
-                    terraform -chdir=terraform apply -auto-approve
-                    '''
+                    withCredentials([aws(credentialsId: 'aws-credentials-id', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh '''
+                        terraform -chdir=terraform init
+                        terraform -chdir=terraform apply -auto-approve
+                        '''
+                    }
                 }
             }
         }
@@ -49,17 +53,14 @@ pipeline {
         stage('Fetch EC2 Instance IP') {
             steps {
                 script {
-                    // Fetch the EC2 instance IP from Terraform output
                     INSTANCE_IP = sh(script: "terraform -chdir=terraform output -raw instance_ip", returnStdout: true).trim()
 
-                    // Fetch the private key from Terraform output securely
+                    // Fetch private key securely
                     PRIVATE_KEY = sh(script: "terraform -chdir=terraform output -raw private_key", returnStdout: true).trim()
-
-                    // Write the private key to a temporary file with secure permissions
                     writeFile file: '/tmp/my_terraform_key', text: PRIVATE_KEY
-                    sh "chmod 600 /tmp/my_terraform_key"  // Ensure the private key is secure
+                    sh "chmod 600 /tmp/my_terraform_key"
 
-                    // Write the Ansible inventory with the correct private key and instance IP
+                    // Write Ansible inventory
                     writeFile file: 'ansible/inventory', text: "[app_server]\n${INSTANCE_IP} ansible_ssh_user=ubuntu ansible_ssh_private_key_file=/tmp/my_terraform_key"
                 }
             }
@@ -67,17 +68,13 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
-                script {
-                    // Running the Ansible playbook using the inventory containing the private key
-                    sh 'ansible-playbook -i ansible/inventory ansible/playbook.yml'
-                }
+                sh 'ansible-playbook -i ansible/inventory ansible/playbook.yml'
             }
         }
 
         stage('Test Application') {
             steps {
                 script {
-                    // Test the application by hitting the EC2 instance's public IP
                     sh "curl http://${INSTANCE_IP}"
                 }
             }
@@ -86,7 +83,7 @@ pipeline {
 
     post {
         always {
-            // Clean up temporary private key file to avoid leaving sensitive data around
+            // Clean up the private key
             sh 'rm -f /tmp/my_terraform_key'
         }
     }
