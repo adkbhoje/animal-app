@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        PATH = "/usr/local/bin:$PATH" 
         DOCKER_IMAGE = "adkbhoje/animal-tracker:latest"
         DOCKER_REGISTRY = "adkbhoje"
         IMAGE_NAME = "animal-tracker"
