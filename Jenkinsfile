@@ -10,7 +10,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/adkbhoje/repo.git'  // Your Git repository
+                script {
+                    git branch: 'main', url: 'https://github.com/adkbhoje/your-repository.git', credentialsId: 'github-token'
+                }    
             }
         }
 
