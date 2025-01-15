@@ -27,7 +27,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: '704020f8-db07-410a-91ca-833bf6c1a86e', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh '''
                         docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
                         docker push ${DOCKER_IMAGE}
@@ -40,7 +40,7 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 script {
-                    withCredentials([aws(credentialsId: 'ce325f53-6263-4a49-9b06-f5241698f237', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    withCredentials([aws(credentialsId: 'aws-credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh '''
                         terraform -chdir=terraform init
                         terraform -chdir=terraform apply -auto-approve
