@@ -11,7 +11,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    git branch: 'main', url: 'https://github.com/adkbhoje/your-repository.git', credentialsId: 'github-token'
+                    git branch: 'main', url: 'https://github.com/adkbhoje/animal-app', credentialsId: 'github-token'
                 }    
             }
         }
