@@ -45,6 +45,7 @@ pipeline {
                 script {
                     // Use the AWS credentials for Terraform
                     withCredentials([aws(credentialsId: 'aws-credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        timeout(time: 3, unit: 'MINUTES') { // Set timeout to 3 minutes
                         // Set TF_LOG to DEBUG for detailed logging
                         withEnv(["TF_LOG=DEBUG"]) {
                             // Run terraform commands
