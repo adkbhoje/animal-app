@@ -49,6 +49,7 @@ pipeline {
                             // Set TF_LOG to DEBUG for detailed logging
                             withEnv(["TF_LOG=DEBUG"]) {
                                 // Run terraform commands
+                                dir('terraform') {
                                 sh '''
                                 echo "Initializing Terraform..."
                                 terraform init
@@ -62,6 +63,7 @@ pipeline {
                 }
             }
         }
+    }       
 
         stage('Fetch EC2 Instance IP') {
             steps {
