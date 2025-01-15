@@ -92,18 +92,13 @@ resource "aws_route_table_association" "a" {
 resource "aws_instance" "app_server" {
   ami           = "ami-039e419d24a37cb82"  # Use the correct AMI for your region
   instance_type = "t2.micro"
-  key_name      = tls_private_key.example.public_key_openssh  # Use the generated public key
+  key_name      = "my-keys4"  # Use the generated public key
   security_groups = [aws_security_group.allow_ssh_http.name]
   subnet_id     = aws_subnet.test.id
   associate_public_ip_address = true  # EC2 instance will have a public IP
 
   tags = {
     Name = "WebServer"
-  }
-
-  # Output EC2 Instance IP
-  output "instance_ip" {
-    value = aws_instance.app_server.public_ip
   }
 }
 
