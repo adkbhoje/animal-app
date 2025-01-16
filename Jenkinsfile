@@ -6,6 +6,8 @@ pipeline {
         DOCKER_IMAGE = "adkbhoje/animal-tracker:latest"
         DOCKER_REGISTRY = "adkbhoje"
         IMAGE_NAME = "animal-tracker"
+        TF_LOG = "DEBUG" // Enable detailed Terraform logging
+        TF_LOG_PATH = "terraform-debug.log" // Log output for Terraform
     }
 
     stages {
