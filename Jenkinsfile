@@ -45,30 +45,27 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 script {
-                    // Use the AWS credentials for Terraform
                     withCredentials([aws(credentialsId: 'aws-credentials', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        timeout(time: 10, unit: 'MINUTES') { // Set timeout to 3 minutes
-                            // Set TF_LOG to DEBUG for detailed logging
-                            withEnv(["TF_LOG=DEBUG"]) {
-                                // Run terraform commands
+                        timeout(time: 15, unit: 'MINUTES') { // Increased timeout to handle delays
+                            withEnv(["TF_LOG=DEBUG", "TF_LOG_PATH=terraform-debug.log"]) {
                                 dir('terraform') {
-                                sh '''
-                                echo "Initializing Terraform..."
-                                terraform init
+                                    sh '''
+                                    echo "Initializing Terraform..."
+                                    terraform init
 
-                                echo "Validating Terraform configuration..."
-                                terraform validate
+                                    echo "Validating Terraform configuration..."
+                                    terraform validate
 
-                                echo "Applying Terraform changes..."
-                                terraform apply -auto-approve
-                                '''
+                                    echo "Applying Terraform changes..."
+                                    terraform apply -auto-approve
+                                    '''
+                                }
                             }
                         }
                     }
                 }
             }
         }
-    }       
 
         stage('Fetch EC2 Instance IP') {
             steps {
@@ -95,7 +92,7 @@ pipeline {
         stage('Test Application') {
             steps {
                 script {
-                    sh "curl http://${INSTANCE_IP}"
+                    sh "curl -f http://${INSTANCE_IP}"
                 }
             }
         }
@@ -103,8 +100,19 @@ pipeline {
 
     post {
         always {
-            // Clean up the private key
-            sh 'rm -f /tmp/my_terraform_key'
+            script {
+                // Cleanup private key and Terraform processes
+                sh '''
+                rm -f /tmp/my_terraform_key
+                pkill -f terraform-provider-aws || true
+                '''
+            }
+        }
+        success {
+            echo "Pipeline executed successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Check logs for errors."
         }
     }
 }
