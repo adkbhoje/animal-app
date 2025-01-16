@@ -56,6 +56,9 @@ pipeline {
                                 echo "Initializing Terraform..."
                                 terraform init
 
+                                echo "Validating Terraform configuration..."
+                                terraform validate
+
                                 echo "Applying Terraform changes..."
                                 terraform apply -auto-approve
                                 '''
